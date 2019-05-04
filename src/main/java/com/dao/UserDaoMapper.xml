@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   <!-- namespace:必须是对应接口的全路径 -->
+<mapper namespace="com.dao.UserDao">
+	<!--
+		查询:
+		id:必须是对应方法的名称
+		parameterType:该方法执行中用到的参数类型
+		resultType:结果集类型,告诉mybatis你自动的把结果集里面的数据封装到那个实体类中
+	 -->
+	 <!-- 查询用户 -->
+	<select id="findUser" parameterType="user" resultType="user">
+	    select * from users where userName=#{userName} and pwd=#{pwd}
+	</select>
+	<select id="findAllUser"  resultType="User">
+	     select * from users
+	</select>
+	<select id="findUserById" parameterType="int" resultType="user">
+		select * from users where id=#{userId}
+	</select>	
+</mapper>

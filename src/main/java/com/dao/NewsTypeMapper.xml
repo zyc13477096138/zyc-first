@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   <!-- namespace:必须是对应接口的全路径 -->
+<mapper namespace="com.dao.NewsTypeDao">
+	<!-- 
+		查询:
+		id:必须是对应方法的名称
+		parameterType:该方法执行中用到的参数类型
+		resultType:结果集类型,告诉mybatis你自动的把结果集里面的数据封装到那个实体类中
+	 -->
+	<select id="findNewsType"  resultType="type">
+	     select * from newsType
+	</select>
+	<!-- 根据Id查询品牌用于级联查询 
+		如果接口中有方法那么必须对应一条sql语句,sql语句没必要非对应方法
+	-->
+	<select id="findNewsTypeById" parameterType="int" resultType="type">
+	      select * from newsType where Id=#{tId}
+	</select>
+</mapper>

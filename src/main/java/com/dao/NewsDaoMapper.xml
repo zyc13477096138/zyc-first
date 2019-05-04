@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   <!-- namespace:必须是对应接口的全路径 -->
+<mapper namespace="com.dao.NewsDao">
+   <!-- 
+		自定义结果集和实体类的映射关系
+			1. 表字段和实体类属性不一致()
+			2. 级联查询
+		type:该resultMap是什么类型(对应的实体类类型)
+		id:唯一标识
+	 -->
+  <resultMap type="news" id="newsAndType">
+    <!-- 专门用来指定主键的映射关系 -->
+    <id  property="id" column="id"/>
+    <!-- 用来指定普通字段的映射关系 -->
+    <result  property="newsId" column="newsId"/>
+    <result  property="title" column="title"/>
+    <result  property="newContext" column="newContext"/>
+    <result  property="newDate" column="newDate"/>
+    <result  property="publish" column="publish"/>
+    <!-- 级联查询 
+			association:用来级联查询对象中的对象类型属性
+			property:查询出来的结果赋值给那个属性
+			column:根据结果集中的那个字段查询(外键)
+			javaType:查询出来的结果是什么的类型
+			select:引用那条sql语句
+		-->
+		<association property="newsType" column="tId" javaType="type" select="com.dao.NewsTypeDao.findNewsTypeById"></association>	
+		<association property="user" column="userId" javaType="user" select="com.dao.UserDao.findUserById"></association>	
+  </resultMap>
+	<!-- 
+		查询:
+		id:必须是对应方法的名称
+		parameterType:该方法执行中用到的参数类型
+		resultType:结果集类型,告诉mybatis你自动的把结果集里面的数据封装到那个实体类中
+	 -->
+	 <select id="findNewsById" parameterType="int" resultType="news">
+	      select * from news where id=#{id}
+	 </select>    
+<!--  根据条件分页查询信息  -->
+<!--     <select id="findAllNewsByFenye" parameterType="com.util.PageBean" resultMap="newsAndType"> -->
+<!--         select *from (select n.*,rownum r from(select *from news  -->
+<!--        <where> -->
+<!--          <if test="query !=null"> -->
+<!--             <if test="query.qTitle !=null and query.qTitle !=''"> -->
+<!--                  and title like concat('%',concat(#{query.qTitle},'%')) -->
+<!--             </if> -->
+<!--             <if test="query.qNewsTypeId !=null and query.qNewsTypeId !=0"> -->
+<!--                  and tId=#{query.qNewsTypeId} -->
+<!--              </if> -->
+<!--              <if test="query.startTime !=null"> -->
+<!--                  and newDate >#{query.startTime} -->
+<!--              </if> -->
+<!--               <if test="query.endTime !=null"> -->
+<!--                  and newDate <![CDATA[<]]>=#{query.endTime} -->
+<!--              </if> -->
+<!--          </if> -->
+<!--        </where>  -->
+<!--           )n) where r>#{startPageSize} and r<![CDATA[<=]]>#{endPageSize} -->
+<!--     </select> -->
+<!--      <select id="findPageSizeCount" parameterType="com.util.Query" resultType="int"> -->
+<!--         select count(*) from news -->
+<!--         <where> -->
+<!--             <if test="qTitle !=null and qTitle !=''"> -->
+<!--                  and title like concat('%',concat(#{qTitle},'%')) -->
+<!--             </if> -->
+<!--             <if test="qNewsTypeId !=null and qNewsTypeId !=0"> -->
+<!--                  and tId=#{qNewsTypeId} -->
+<!--              </if> -->
+<!--              <if test="startTime !=null"> -->
+<!--                  and newDate>#{startTime} -->
+<!--              </if> -->
+<!--               <if test="endTime !=null"> -->
+<!--                  and newDate <![CDATA[<]]>=#{endTime} -->
+<!--              </if> -->
+<!--         </where> -->
+<!--      </select> -->
+  <!-- 调用存储过程分页展现 信息-->
+   <select id="findAllNewsByFenye" parameterType="com.util.PageBean" statementType="CALLABLE">
+      <![CDATA[
+           {call pageBean(
+              #{startPageSize,mode=IN,jdbcType=INTEGER},
+              #{endPageSize,mode=IN,jdbcType=INTEGER},
+              #{query.qTitle,mode=IN,jdbcType=VARCHAR},
+              #{query.qNewsTypeId,mode=IN,jdbcType=INTEGER},
+              #{query.startTime,mode=IN,jdbcType=VARCHAR},
+              #{query.endTime,mode=IN,jdbcType=VARCHAR},
+              #{countPageSize,mode=OUT,jdbcType=INTEGER},
+			  #{news,jdbcType=CURSOR,mode=OUT,javaType=ResultSet, resultMap=newsAndType}
+           )}
+      ]]>
+   </select>
+     <insert id="addNews"  parameterType="news">
+        insert into news(id,newsId, tId, title,newContext,newDate,publish,userId,img) values
+           (seq_new.nextval,#{newsId},#{newsType.id},#{title},#{newContext},SYSDATE,#{publish},#{user.id},#{img})
+    </insert> 
+    <delete id="delNews" parameterType="int">
+         delete news where id=#{id}
+    </delete>
+    <update id="updateNews" parameterType="news">
+      update news set 
+                 newsId=#{newsId},
+                 title=#{title},
+                 newContext=#{newContext}, 
+                 publish=#{publish},
+                 newDate=#{newDate}
+                 where id=#{id}             
+    </update>
+</mapper>
