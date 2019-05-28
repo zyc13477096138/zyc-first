@@ -22,7 +22,7 @@ public interface NewsService{
 	//   public int findPageSizeCount(Query q);
 	   //增加新闻
 	   public int addNews(News news,CommonsMultipartFile fimg);
-	   
+	   //通过ID查询新闻
 	   public News findNewsById(Integer id);  
 	   
 	   //删除新闻信息
